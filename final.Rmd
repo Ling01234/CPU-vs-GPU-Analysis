@@ -1,0 +1,361 @@
+---
+output: bookdown::pdf_document2
+---
+\newpage
+
+# Set up
+```{r setup, message=FALSE}
+library(readxl)
+library(here)
+library(matlib)
+library(formatR)
+library(gridExtra)
+library(tidyverse)
+library(tidyr)
+knitr::opts_chunk$set(tidy.opts=list(width.cutoff=60),
+                      tidy=TRUE,
+                      echo=TRUE,
+                      # comment=NA,
+                      message=FALSE,
+                      warning=FALSE)
+cpu_gpu_data<-read_csv("chip_dataset.csv")
+```
+
+```{r}
+names(cpu_gpu_data)
+head(cpu_gpu_data)
+```
+
+\newpage
+
+# Task 1
+## part a)
+```{r}
+#Numerical summary in tables
+summary <- cpu_gpu_data %>% 
+  select(Type, "Process Size (nm)", "TDP (W)", "Die Size (mm^2)", "Transistors (million)", "Freq (MHz)") %>% 
+  pivot_longer(cols=all_of(c("Process Size (nm)", "TDP (W)", "Die Size (mm^2)", "Transistors (million)", "Freq (MHz)")), 
+               names_to = "Characteristics") %>% 
+  group_by(Type, Characteristics) %>%
+  summarise_all(list(Min=min,
+                     Max=max,
+                     Med=median,
+                     IQR = IQR
+                     ), na.rm=TRUE)
+summary
+```
+```{r process, fig.cap="Process Size Data"}
+#Graphical summary
+p1 <- cpu_gpu_data %>%
+  ggplot(aes(x=Type, y=`Process Size (nm)`, fill=Type)) +
+  stat_boxplot(geom="errorbar", width=0.25) +
+  geom_boxplot(na.rm = TRUE) +
+  ylab("Process Size (nm)") +
+  xlab("Type") + 
+  ggtitle("Box plot of Process Size (nm) by Type")
+p2 <- cpu_gpu_data %>%
+  ggplot(aes(x=`Process Size (nm)`, col=Type)) +
+  geom_density(size=1, na.rm = TRUE) +
+  xlab("Process Size (nm)") +
+  ylab("Density") + 
+  ggtitle("Density plot of Process Size (nm) by Type")
+
+grid.arrange(p1,p2)
+```
+
+```{r TDP, fig.cap="TDP Data"}
+p1 <- cpu_gpu_data %>%
+  ggplot(aes(x=Type, y=`TDP (W)`, fill=Type)) +
+  stat_boxplot(geom="errorbar", width=0.25) +
+  geom_boxplot(na.rm = TRUE) +
+  ylab("TDP (W)") +
+  xlab("Type") + 
+  ggtitle("Box plot of TDP (W) by Type")
+p2 <- cpu_gpu_data %>%
+  ggplot(aes(x=`TDP (W)`, col=Type)) +
+  geom_density(size=1, na.rm = TRUE) +
+  xlab("TDP (W)") +
+  ylab("Density") + 
+  ggtitle("Density plot of TDP (W) by Type")
+
+grid.arrange(p1,p2)
+```
+
+```{r die, fig.cap="Die Size Data"}
+p1 <- cpu_gpu_data %>%
+  ggplot(aes(x=Type, y=`Die Size (mm^2)`, fill=Type)) +
+  stat_boxplot(geom="errorbar", width=0.25) +
+  geom_boxplot(na.rm = TRUE) +
+  ylab("Die Size (mm^2)") +
+  xlab("Type") + 
+  ggtitle("Box plot of Die Size by Type")
+p2 <- cpu_gpu_data %>%
+  ggplot(aes(x=`Die Size (mm^2)`, col=Type)) +
+  geom_density(size=1, na.rm = TRUE) +
+  xlab("Die Size (mm^2)") +
+  ylab("Density") + 
+  ggtitle("Density plot of Die Size (mm^2) by Type")
+
+grid.arrange(p1,p2)
+```
+```{r transistors, fig.cap="Transistors Data"}
+p1 <- cpu_gpu_data %>%
+  ggplot(aes(x=Type, y=`Transistors (million)`, fill=Type)) +
+  stat_boxplot(geom="errorbar", width=0.25) +
+  geom_boxplot(na.rm = TRUE) +
+  ylab("Transistors (million)") +
+  xlab("Type") + 
+  ggtitle("Box plot of Transistors (million) by Type")
+p2 <- cpu_gpu_data %>%
+  ggplot(aes(x=`Transistors (million)`, col=Type)) +
+  geom_density(size=1, na.rm = TRUE) +
+  xlab("Transistors (million)") +
+  ylab("Density") + 
+  ggtitle("Density plot of Transistors (million) by Type")
+
+grid.arrange(p1,p2)
+```
+
+```{r freq, fig.cap="Frequency Data"}
+p1 <- cpu_gpu_data %>%
+  ggplot(aes(x=Type, y=`Freq (MHz)`, fill=Type)) +
+  stat_boxplot(geom="errorbar", width=0.25) +
+  geom_boxplot(na.rm = TRUE) +
+  ylab("Freq (MHz)") +
+  xlab("Type") + 
+  ggtitle("Box plot of Freq (MHz) by Type")
+p2 <- cpu_gpu_data %>%
+  ggplot(aes(x=`Freq (MHz)`, col=Type)) +
+  geom_density(size=1, na.rm = TRUE) +
+  xlab("Freq (MHz)") +
+  ylab("Density") + 
+  ggtitle("Density plot of Freq (MHz) by Type")
+
+grid.arrange(p1,p2)
+```
+
+### Process Size
+From the numerical summary, we can see that CPUs has a minimum of 7, maximum of 180, median of 32 and IQR of 76 and that GPUs has a minimum of 0, maximum of 250, median of 40 and IQR of 62. The characteristics of the distribution can also be observed from Figure \@ref(fig:process). From the boxplot, we can see that the central location and spread of both types are very similar. However, the GPUs have an outlier at the point 250, where the max comes from. The density plot tells us that the skewness of both types are similar. 
+
+### TDP
+From the numerical summary, we can see that CPUs has a minimum of 1, maximum of 400, median of 65 and IQR of 60 and that GPUs has a minimum of 2, maximum of 900, median of 50 and IQR of 91.5. The characteristics of the distribution can also be observed from Figure \@ref(fig:TDP). From the boxplot, we can see that the central locations are very similar, whereas the spread of the distribution is quite different as GPUs reach up to 900. The density plot tells us that the skewness of the two types are quite similar. 
+
+### Die Size
+From the numerical summary, we can see that CPUs has a minimum of 1, maximum of 684, median of 149 and IQR of 108 and that GPUs has a minimum of 6, maximum of 826, median of 148 and IQR of 155. The characteristics of the distribution can also be observed from Figure \@ref(fig:die). From the boxplot, we can see that the central locations are very similar, with a slightly greater spread with the GPUs. The density plot tells us that the skewness of the two types are very similar. 
+
+### Transistors
+From the numerical summary, we can see that CPUs has a minimum of 37, maximum of 19200, median of 410 and IQR of 1086 and that GPUs has a minimum of 8, maximum of 54200, median of 716 and IQR of 2590. The characteristics of the distribution can also be observed from Figure \@ref(fig:transistors). From the boxplot, we can see that the central locations are somewhat similar. However, the spread of the GPUs is much greater than the spread of the CPUs. This can be easily observed, as the maximum number of transistors in a CPU is 19200 in contrast to 54200 in GPU. We can also observe a few outliers in the GPUs from the boxplot. From the density plot, we can see that the skewness of the distributions are also quite different. We can see that proportional to the size of the distribution, CPUs tend to have a smaller number of transistors compared to GPUs, as the skewness is much higher when the number of transistors is small.
+
+### Frequency
+From the numerical summary, we can see that CPUs has a minimum of 600, maximum of 4700, median of 2400 and IQR of 1000 and that GPUs has a minimum of 100, maximum of 2321, median of 600 and IQR of 438. The characteristics of the distribution can also be observed from Figure \@ref(fig:freq). From the boxplot, we can see that the central locations are very different. This is clear as the medians are 2400 and 600 for CPUs and GPUs respectively. The density plot tells us that both the skewness and the spread of the two types are very different. CPUs have a bigger spread, but a smaller skewness. On the other hand, GPUs have a smaller spread, but a greater skewness. 
+
+## part b)
+```{r}
+#Numerical Summary
+table(cpu_gpu_data["Foundry"])
+
+vendor_vs_foundry <- cpu_gpu_data %>% 
+  group_by(Vendor, Type) %>% 
+  summarise("unique foundry" = n_distinct(Foundry))
+vendor_vs_foundry
+```
+We can see that the only vendor that has a unique foundry is Intel, but that is only specific to the CPU processors. For GPUs, even Intel has 2 distinct foundries. All other vendors have more than 1 distinct foundry, regardless of the type of the processor. 
+
+```{r}
+foundry_vs_vendor <- cpu_gpu_data %>% 
+  group_by(Foundry, Type) %>% 
+  summarise("unique vendor" = n_distinct(Vendor))
+foundry_vs_vendor
+```
+
+Here, we can see from the second table that many of the foundries have a unique vendor. We should keep in mind that IMB, NEC, Renesas, Samsung, Sony and UMC are all foundries that have a small count. We observe that in general, each foundry like to stay with a small number of unique vendors. Additionally, we observe that **all CPU foundries have a unique vendor**. This information can also be observed from the graphs below, perhaps even better. 
+
+```{r}
+#Graphical Summary
+vendor_vs_foundry %>% 
+  ggplot(aes(x=Vendor, y=`unique foundry`, group=Type, fill = Type)) + 
+  geom_bar(col = "black", stat="identity", position="dodge") + 
+  ggtitle("Bar plot of Vendor vs unique foundry")
+
+foundry_vs_vendor %>% 
+  ggplot(aes(x=Foundry, y=`unique vendor`, group=Type, fill=Type)) + 
+  geom_bar(col="black", stat="identity", position="dodge") + 
+  ggtitle("Bar plot of Foundry vs unique vendor")
+```
+
+## part c)
+```{r}
+#Graph
+cpu_gpu_data %>% 
+  ggplot(aes(x=`Die Size (mm^2)`, y=`TDP (W)`, col=Type)) + 
+  geom_point() + 
+  xlab("Die Size (mm^2)") + ylab("TDP (W)") + ggtitle("Die Size vs TDP") + 
+  geom_smooth(method="lm")
+```
+We can also observe the graphs separately, as follows:
+```{r}
+cpu_gpu_data %>% 
+  ggplot(aes(x=`Die Size (mm^2)`, y=`TDP (W)`, col=Type)) + 
+  geom_point() + 
+  facet_wrap(~Type) +
+  xlab("Die Size (mm^2)") + ylab("TDP (W)") + ggtitle("Die Size vs TDP") + 
+  geom_smooth(method="lm", col="black")
+```
+In both graphs, we can see that the association between Die Size and TDP does not really depend on Type. It's worth noting that the two features in GPUs have a greater spread, whereas the association in CPUs are much more concentrated. However, we can observe that both types of processors follow a similar regression line. We can also observe the association numerically. 
+```{r}
+#Numerical summary in tables
+summary[c(1,4,6,9),]
+```
+From the numerical table above, we can also observe that the medians of both characteristics are similar, regardless of the processor type (CPU or GPU). 
+
+\newpage
+
+# Task 2
+## Part a)
+### CPU
+```{R}
+foundry_vs_year <- cpu_gpu_data[cpu_gpu_data$Type=="CPU",] %>%
+group_by(Foundry, year=format(as.Date(na.omit(`Release Date`), format="%Y-%m-%d"),"%Y")) %>%
+summarise(total_count = n())
+
+foundry_vs_year <- na.omit(foundry_vs_year)
+
+foundry_vs_year
+
+foundry_vs_year %>%
+ggplot(aes(x = year, y = total_count, group = Foundry,
+fill = Foundry, width=0.7)) + geom_bar(col = "black", stat = "identity",
+position = "dodge", na.rm = TRUE)  + ggtitle("Total number of processors
+relased by year") + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+```{R}
+vendor_vs_year <- cpu_gpu_data[cpu_gpu_data$Type=="CPU",] %>%
+group_by(Vendor, year=format(as.Date(na.omit(`Release Date`), format="%Y-%m-%d"),"%Y")) %>%
+summarise(total_count = n())
+
+vendor_vs_year <- na.omit(vendor_vs_year)
+
+vendor_vs_year
+
+vendor_vs_year %>%
+ggplot(aes(x = year, y = total_count, group = Vendor,
+fill = Vendor, width=0.7)) + geom_bar(col = "black", stat = "identity",
+position = "dodge", na.rm = TRUE)  + ggtitle("Total number of processors
+relased by year") + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+### GPU
+```{R}
+foundry_vs_year <- cpu_gpu_data[cpu_gpu_data$Type=="GPU",] %>%
+group_by(Foundry, year=format(as.Date(na.omit(`Release Date`), format="%Y-%m-%d"),"%Y")) %>%
+summarise(total_count = n())
+
+foundry_vs_year <- na.omit(foundry_vs_year)
+
+foundry_vs_year
+
+foundry_vs_year %>%
+ggplot(aes(x = year, y = total_count, group = Foundry,
+fill = Foundry, width=0.7)) + geom_bar(col = "black", stat = "identity",
+position = "dodge", na.rm = TRUE)  + ggtitle("Total number of processors
+relased by year") + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+```{R}
+vendor_vs_year <- cpu_gpu_data[cpu_gpu_data$Type=="GPU",] %>%
+group_by(Vendor, year=format(as.Date(na.omit(`Release Date`), format="%Y-%m-%d"),"%Y")) %>%
+summarise(total_count = n())
+
+vendor_vs_year <- na.omit(vendor_vs_year)
+
+vendor_vs_year
+
+vendor_vs_year %>%
+ggplot(aes(x = year, y = total_count, group = Vendor,
+fill = Vendor, width=0.7)) + geom_bar(col = "black", stat = "identity",
+position = "dodge", na.rm = TRUE)  + ggtitle("Total number of processors
+relased by year") + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+Over the years, we have seen a general increase in release of processors from 2000 to around 2012, then a general decrease from 2012 to 2021. For CPUs, Intel was the leading foundry and vendor for most of the years. For GPUs, TSMC was the top foundry. ATI was the leading GPU vendor 2010, then AMD and NVIDIA took over.
+
+## Part b)
+
+### Expected Number of transistors per microchip
+#### CPU
+```{R}
+cpu_data <- cpu_gpu_data[cpu_gpu_data$Type=="CPU",] %>%
+group_by(`Transistors (million)`, year=format(as.Date(na.omit(`Release Date`), format="%Y-%m-%d"),"%Y"))
+curr <- mean(cpu_data[cpu_data$year == 2000,]$`Transistors (million)`, na.rm=TRUE)
+CPU_exp_nb_trans <- c(curr)
+years <- seq(2000, 2021, by=1)
+for (i in 1:21){
+  curr <- curr*sqrt(2)
+  CPU_exp_nb_trans <- append(CPU_exp_nb_trans, curr)
+}
+
+```
+#### GPU
+```{R}
+gpu_data <- cpu_gpu_data[cpu_gpu_data$Type=="GPU",] %>%
+group_by(`Transistors (million)`, year=format(as.Date(na.omit(`Release Date`), format="%Y-%m-%d"),"%Y")) 
+curr <- mean(gpu_data[gpu_data$year == 2000,]$`Transistors (million)`, na.rm=TRUE)
+GPU_exp_nb_trans <- c(curr)
+for (i in 1:21){
+  curr <- curr*sqrt(2)
+  GPU_exp_nb_trans <- append(GPU_exp_nb_trans, curr)
+}
+
+```
+### Observed number of transistors per microchip
+#### CPU
+```{R}
+
+cpu_data <- cpu_gpu_data[cpu_gpu_data$Type=="CPU",] %>%
+group_by(`Transistors (million)`, year=format(as.Date(na.omit(`Release Date`), format="%Y-%m-%d"),"%Y")) 
+CPU_obs_nb_trans <- c()
+
+for (i in 0:21){
+  curr <- mean(cpu_data[cpu_data$year == 2000+i,]$`Transistors (million)`, na.rm = TRUE)
+  CPU_obs_nb_trans <- append(CPU_obs_nb_trans, curr)
+}
+
+```
+
+#### GPU
+```{R}
+
+gpu_data <- cpu_gpu_data[cpu_gpu_data$Type=="GPU",] %>%
+group_by(`Transistors (million)`, year=format(as.Date(na.omit(`Release Date`), format="%Y-%m-%d"),"%Y")) 
+GPU_obs_nb_trans <- c()
+
+for (i in 0:21){
+  curr <- mean(gpu_data[gpu_data$year == 2000+i,]$`Transistors (million)`, na.rm = TRUE)
+  GPU_obs_nb_trans <- append(GPU_obs_nb_trans, curr)
+}
+
+```
+
+#### All together
+```{R}
+result <- data.frame(years, CPU_exp_nb_trans, CPU_obs_nb_trans,GPU_exp_nb_trans, GPU_obs_nb_trans)
+result
+```
+
+#### Graphically
+
+```{r}
+ggplot(data=result, aes(years)) +
+  geom_point(aes(y=CPU_exp_nb_trans, color="CPU Expected"))+
+  geom_point(aes(y=CPU_obs_nb_trans, color="CPU Observed"))+
+  geom_point(aes(y=GPU_exp_nb_trans, color="GPU Expected"))+
+  geom_point(aes(y=GPU_obs_nb_trans, color="GPU Observed"))
+```
+
+Hence, from the table and plot above, we can say that Moore's Law is no longer valid.
+
+
